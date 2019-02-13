@@ -47,7 +47,7 @@ public class CalculateCostController {
         this.costCalculator = costCalculator;
     }
 
-    @RequestMapping("/getFuelCost")
+    @RequestMapping("/fuelcost")
     FuelCost getFuelCost(
             @RequestParam String date,
             @RequestParam String fuelType,

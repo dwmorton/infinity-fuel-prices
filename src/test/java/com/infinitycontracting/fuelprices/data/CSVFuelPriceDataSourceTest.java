@@ -22,7 +22,6 @@ import com.infinitycontracting.fuelprices.exceptions.DateTooEarlyException;
 import com.infinitycontracting.fuelprices.exceptions.InvalidPriceData;
 import com.infinitycontracting.fuelprices.model.FuelPrice;
 import com.infinitycontracting.fuelprices.model.FuelType;
-import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
