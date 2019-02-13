@@ -1,6 +1,10 @@
 # Web Service Code Test - Fuel Prices
 
 Implementation of the "Fuel Prices" coding test.
+Fully working, tested & hosted as requested.
+
+## Authors
+* [David Morton](mailto:david@infinitycontracting.com) (Infinity Contracting Ltd.)
 
 ## Main Technologies Used
 * Java 8
@@ -36,20 +40,20 @@ N.B. The input parameter "fuelType" accepts the following values:
 ```
 
 ## ToDo / Implementation Comments
-* Output values are in UK pence (divide by 100 for UKP) 
 * Fuel prices are stored in a TreeMap of HashMaps, which was chosen for code readability and simplicity of price lookup.
 * Prices are stored internally as BigDecimal to avoid currency rounding errors associated with floats, at the expense of execution speed and code readability.
 * The wrong priceData.csv file is injected in the unit tests (the src/main/resources version is used), due to an unresolved issue with the SpringBoot application.properties. 
 * Add Spring Boot integration tests against REST endpoint (with mocked dependencies)
+* Enable endpoint security
 * Implement HATEOAS
 * Implement REST endpoint versioning
 
-## Authors
-* [David Morton](mailto:david@infinitycontracting.com) (Infinity Contracting Ltd.)
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details
 
 ## OpenAPI
+See [openapi.yamp](openapi.yaml)
 ```
 swagger: '2.0'
 info:
@@ -124,3 +128,4 @@ definitions:
         example: -200
 
 ```
+
