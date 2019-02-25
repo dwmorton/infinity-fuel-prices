@@ -46,10 +46,15 @@ public class CSVFuelPriceDataSource implements FuelPriceDataSource {
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final String REGEX = "^.*values=\\[\\d\\d\\/\\d\\d\\/\\d\\d\\d\\d, ([0-9]*\\.?[0-9]*, ){6}.*$";
-    private final NavigableMap<LocalDate, Map<FuelType,FuelPrice>> fuelPriceDataMap = new TreeMap<>();
+
+    private final Map<FuelType, NavigableMap<LocalDate, FuelPrice>> fuelPriceDataMap = new HashMap<>();
 
     @Autowired
     public CSVFuelPriceDataSource(@Value("${csvPriceData}") Resource csvPriceData) {
+
+        for (FuelType fuelType : FuelType.values()) {
+            fuelPriceDataMap.put(fuelType, new TreeMap<>());
+        }
 
         try (BufferedReader in = new BufferedReader(new InputStreamReader(csvPriceData.getInputStream()))) {
 
@@ -61,7 +66,7 @@ public class CSVFuelPriceDataSource implements FuelPriceDataSource {
             throw new InvalidPriceData(msg, e);
         }
 
-        if (fuelPriceDataMap.isEmpty()) {
+        if (fuelPriceDataMap.values().stream().allMatch(Map::isEmpty)) {
             String msg = "No valid data found in supplied CSV file";
             LOGGER.severe(msg);
             throw new InvalidPriceData(msg);
@@ -88,10 +93,8 @@ public class CSVFuelPriceDataSource implements FuelPriceDataSource {
             FuelPrice petrolPrice = new FuelPrice(new BigDecimal(pumpPricePetrol), new BigDecimal(dutyPetrol), new BigDecimal(vatPetrol));
             FuelPrice dieselPrice = new FuelPrice(new BigDecimal(pumpPriceDiesel), new BigDecimal(dutyDiesel), new BigDecimal(vatDiesel));
 
-            Map<FuelType, FuelPrice> fuelTypePriceMap = new HashMap<>(FuelType.values().length);
-            fuelTypePriceMap.put(FuelType.ULSP, petrolPrice);
-            fuelTypePriceMap.put(FuelType.ULSD, dieselPrice);
-            fuelPriceDataMap.put(date, fuelTypePriceMap);
+            fuelPriceDataMap.get(FuelType.ULSP).put(date, petrolPrice);
+            fuelPriceDataMap.get(FuelType.ULSD).put(date, dieselPrice);
 
         } catch (DateTimeParseException dtpe) {
             LOGGER.info("Invalid date in CSV file line "+lineNumber);
@@ -104,16 +107,16 @@ public class CSVFuelPriceDataSource implements FuelPriceDataSource {
     @Override
     public FuelPrice getFuelPrice(LocalDate date, FuelType fuelType) throws DateTooEarlyException {
 
-        LocalDate previousDate = fuelPriceDataMap.floorKey(date);
+        LocalDate previousDate = fuelPriceDataMap.get(fuelType).floorKey(date);
         if (null == previousDate) {
-            throw new DateTooEarlyException(date, fuelPriceDataMap.firstKey());
+            throw new DateTooEarlyException(date, fuelPriceDataMap.get(fuelType).firstKey());
         }
 
-        return fuelPriceDataMap.get(previousDate).get(fuelType);
+        return fuelPriceDataMap.get(fuelType).get(previousDate);
     }
 
     @Override
     public FuelPrice getCurrentFuelPrice(FuelType fuelType) {
-        return fuelPriceDataMap.lastEntry().getValue().get(fuelType);
+        return fuelPriceDataMap.get(fuelType).lastEntry().getValue();
     }
 }
